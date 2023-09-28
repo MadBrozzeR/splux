@@ -2,7 +2,7 @@ function Splux (node, host) {
   this.node = node || null;
   this.host = host || {};
 }
-Splux.prototype.clone = function (node) {
+Splux.prototype.use = function (node) {
   return new Splux(node, this.host);
 };
 
@@ -51,7 +51,7 @@ Splux.prototype.dom = function () {
   }
 
   if (params instanceof Function) {
-    return params.call(this.clone(element), element, extra) || element;
+    return params.call(this.use(element), element, extra) || element;
   }
 
   if (params instanceof Object) {
