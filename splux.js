@@ -56,9 +56,9 @@ Splux.prototype.dom = function () {
 
   if (params instanceof Object) {
     deepSpread(params, element);
-
-    return element;
   }
+
+  return element;
 };
 
 export { Splux };
