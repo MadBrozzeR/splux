@@ -7,24 +7,29 @@ Splux.prototype.use = function (node) {
 };
 
 Splux.start = function (callback) {
-  var listener = function () {
+  function listener () {
     window.removeEventListener('load', listener);
     var body = document.getElementsByTagName('body')[0];
     var head = document.getElementsByTagName('head')[0];
 
     callback.call(new Splux(body), body, head);
   };
+
   window.addEventListener('load', listener);
 }
 
-function deepSpread (fromObject, toObject) {
+function spreadParams (fromObject, toObject) {
   for (var key in fromObject) {
     if (fromObject[key].constructor === Object) {
       toObject[key] = toObject[key] || {};
 
       deepSpread(fromObject[key], toObject[key]);
     } else {
-      toObject[key] = fromObject[key];
+      if (key in toObject) {
+        toObject[key] = fromObject[key];
+      } else {
+        toObject.setAttribute(key, fromObject[key]);
+      }
     }
   }
 }
@@ -55,10 +60,18 @@ Splux.prototype.dom = function () {
   }
 
   if (params instanceof Object) {
-    deepSpread(params, element);
+    spreadParams(params, element);
   }
 
   return element;
 };
+
+Splux.prototype.setParams = function (params) {
+  if (params instanceof Object) {
+    spreadParams(params, this.node);
+  }
+
+  return this;
+}
 
 export { Splux };
