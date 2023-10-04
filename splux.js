@@ -20,10 +20,14 @@ Splux.start = function (callback) {
 
 function spreadParams (fromObject, toObject) {
   for (var key in fromObject) {
+    if (fromObject[key] === undefined || fromObject[key] === null) {
+      continue;
+    }
+
     if (fromObject[key].constructor === Object) {
       toObject[key] = toObject[key] || {};
 
-      deepSpread(fromObject[key], toObject[key]);
+      spreadParams(fromObject[key], toObject[key]);
     } else {
       if (key in toObject) {
         toObject[key] = fromObject[key];
