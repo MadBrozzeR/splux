@@ -6,13 +6,13 @@ Splux.prototype.use = function (node) {
   return new Splux(node, this.host);
 };
 
-Splux.start = function (callback) {
+Splux.start = function (callback, host) {
   function listener () {
     window.removeEventListener('load', listener);
     var body = document.getElementsByTagName('body')[0];
     var head = document.getElementsByTagName('head')[0];
 
-    callback.call(new Splux(body), body, head);
+    callback.call(new Splux(body, host), body, head);
   };
 
   window.addEventListener('load', listener);
