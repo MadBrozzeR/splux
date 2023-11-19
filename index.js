@@ -78,10 +78,12 @@ Splux.prototype.setParams = function (params) {
   return this;
 }
 
-Splux.createComponent = function (tag, callback) {
-  callback.tag = tag;
+Splux.createComponent = function () {
+  return function (tag, callback) {
+    callback.tag = tag;
 
-  return callback;
+    return callback;
+  }
 }
 
 export { Splux };

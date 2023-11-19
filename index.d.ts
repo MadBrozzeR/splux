@@ -20,7 +20,7 @@ declare module 'splux' {
       head: HTMLHeadElement,
     ) => void, host?: THost): void;
 
-    static createComponent<K extends keyof DOMElement, C extends ParamsAsFunc<DOMElement[K], any, any, any>>(tag: K, callback: C): C & WithTag<K>;
+    static createComponent<THost>(): <K extends keyof DOMElement, C extends ParamsAsFunc<DOMElement[K], THost, any, any>>(tag: K, callback: C) => C & WithTag<K>;
 
     dom<K extends keyof DOMElement>(tag: K, params?: ParamsAsObj<DOMElement[K]>): DOMElement[K];
     dom<E extends Element>(element: E, params?: ParamsAsObj<E>): E;
