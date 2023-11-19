@@ -14,6 +14,9 @@ declare module 'splux' {
   type WithTag<K extends keyof DOMElement = 'div'> = { tag?: K };
 
   class Splux<TElement extends Element, THost = null> {
+    node: TElement;
+    host: THost;
+
     static start<THost = null>(callback: (
       this: Splux<HTMLBodyElement, THost>,
       body: HTMLBodyElement,
