@@ -80,9 +80,13 @@ Splux.prototype.setParams = function (params) {
 
 Splux.createComponent = function () {
   return function (tag, callback) {
-    callback.tag = tag;
+    if (typeof arguments[0] === 'string' && arguments[1] instanceof Function) {
+      arguments[1].tag = arguments[0];
 
-    return callback;
+      return arguments[1];
+    } else if (arguments[0] instanceof Function) {
+      return arguments[0];
+    }
   }
 }
 

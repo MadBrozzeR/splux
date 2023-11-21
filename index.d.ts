@@ -2,43 +2,59 @@ type Either<A, B> = A extends undefined | void ? B : A;
 type DOMElement = HTMLElementTagNameMap;
 
 declare module 'splux' {
-  type ParamsAsObj<TNode extends Element = null> = {
-    [key in keyof TNode]?: TNode[key];
+  type ParamsAsObj<N extends Element = null> = {
+    [key in keyof N]?: N[key];
   } & {
-    [key: string]: string;
+    [key: `data-${string}`]: string;
   };
-  type ParamsAsFunc<TNode extends Element, THost, TReturn, TExtra = void> = TExtra extends void
-    ? (this: Splux<TNode, THost>, element: TNode) => TReturn | void
-    : (this: Splux<TNode, THost>, element: TNode, extra: TExtra) => TReturn | void;
+  type ParamsAsFunc<N extends Element, H, R, E = void> = E extends void
+    ? (this: Splux<N, H>, element: N) => R | void
+    : (this: Splux<N, H>, element: N, extra: E) => R | void;
 
-  type WithTag<K extends keyof DOMElement = 'div'> = { tag?: K };
+  type WithTag<K extends keyof DOMElement = 'div'> = K extends 'div' ? { tag?: K } : { tag: K };
 
-  class Splux<TElement extends Element, THost = null> {
-    node: TElement;
-    host: THost;
+  /**
+   * Splux Function Component
+   *
+   * @typeParam K - node element tagName
+   * @typeParam H - splux host
+   * @typeParam R - function return type
+   * @typeParam E - external parameters
+   */
+  type Component<K extends keyof DOMElement = 'div', H = null, R = void, E = void> =
+    ParamsAsFunc<DOMElement[K], H, R, E> & WithTag<K>;
 
-    static start<THost = null>(callback: (
-      this: Splux<HTMLBodyElement, THost>,
+  interface ComponentCreator<H> {
+    <K extends keyof DOMElement, R, E = void>(tag: K, callback: ParamsAsFunc<DOMElement[K], H, R, E>): Component<K, H, R, E>;
+    <R, E = void>(callback: ParamsAsFunc<HTMLDivElement, H, R, E>): Component<'div', H, R, E>;
+  }
+
+  class Splux<N extends Element, H = null> {
+    node: N;
+    host: H;
+
+    static start<H = null>(callback: (
+      this: Splux<HTMLBodyElement, H>,
       body: HTMLBodyElement,
       head: HTMLHeadElement,
-    ) => void, host?: THost): void;
+    ) => void, host?: H): void;
 
-    static createComponent<THost>(): <K extends keyof DOMElement, C extends ParamsAsFunc<DOMElement[K], THost, any, any>>(tag: K, callback: C) => C & WithTag<K>;
+    static createComponent<H = null>(): ComponentCreator<H>;
 
     dom<K extends keyof DOMElement>(tag: K, params?: ParamsAsObj<DOMElement[K]>): DOMElement[K];
-    dom<E extends Element>(element: E, params?: ParamsAsObj<E>): E;
+    dom<N extends Element>(element: N, params?: ParamsAsObj<N>): N;
 
-    dom<K extends keyof DOMElement, TReturn>(tag: K, params: ParamsAsFunc<DOMElement[K], THost, TReturn>): Either<TReturn, DOMElement[K]>;
-    dom<K extends keyof DOMElement, TExtra, TReturn>(tag: K, params: ParamsAsFunc<DOMElement[K], THost, TReturn, TExtra>, extra: TExtra): Either<TReturn, DOMElement[K]>;
-    dom<E extends Element, TReturn>(element: E, params: ParamsAsFunc<E, THost, TReturn>): Either<TReturn, E>;
-    dom<E extends Element, TExtra, TReturn>(element: E, params: ParamsAsFunc<E, THost, TReturn, TExtra>, extra: TExtra): Either<TReturn, E>;
+    dom<K extends keyof DOMElement, R>(tag: K, params: ParamsAsFunc<DOMElement[K], H, R>): Either<R, DOMElement[K]>;
+    dom<K extends keyof DOMElement, E, R>(tag: K, params: ParamsAsFunc<DOMElement[K], H, R, E>, extra: E): Either<R, DOMElement[K]>;
+    dom<N extends Element, R>(element: N, params: ParamsAsFunc<N, H, R>): Either<R, N>;
+    dom<N extends Element, E, R>(element: N, params: ParamsAsFunc<N, H, R, E>, extra: E): Either<R, E>;
 
-    dom<K extends keyof DOMElement = 'div', TReturn = void>(params: ParamsAsFunc<DOMElement[K], THost, TReturn> & WithTag<K>): Either<TReturn, DOMElement[K]>;
-    dom<K extends keyof DOMElement = 'div', TExtra = undefined, TReturn = void>(params: ParamsAsFunc<DOMElement[K], THost, TReturn, TExtra> & WithTag<K>, extra: TExtra): Either<TReturn, DOMElement[K]>;
+    dom<K extends keyof DOMElement = 'div', R = void>(params: ParamsAsFunc<DOMElement[K], H, R> & WithTag<K>): Either<R, DOMElement[K]>;
+    dom<K extends keyof DOMElement = 'div', E = undefined, R = void>(params: ParamsAsFunc<DOMElement[K], H, R, E> & WithTag<K>, extra: E): Either<R, DOMElement[K]>;
 
-    use<TNode extends Element = null>(node: TNode): Splux<TNode, THost>;
+    use<N extends Element = null>(node: N): Splux<N, H>;
 
-    setParams(params: ParamsAsObj<TElement>): Splux<TElement, THost>;
+    setParams(params: ParamsAsObj<N>): Splux<N, H>;
   }
 
   export { Splux };
