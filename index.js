@@ -1,9 +1,50 @@
+function Connections (splux) {
+  this.splux = splux;
+  this.parent;
+  this.list; // TODO Consider using more reliable data structure other then array. Linked list might be a good idea.
+}
+Connections.prototype.add = function (child) {
+  if (this.splux.node) {
+    this.list || (this.list = []);
+    this.list.push(child);
+    if (child.connections.parent) {
+      child.connections.parent.connections.remove(child);
+    }
+    child.connections.parent = this.splux;
+    this.splux.node.appendChild(child.node);
+  }
+
+  return child;
+}
+Connections.prototype.remove = function (child) {
+  var index = this.list.indexOf(child);
+
+  this.splus.node.removeChild(child.node);
+
+  if (index > -1) {
+    this.list.splice(index, 1);
+  }
+
+  if (child.connections.parent === this.splux) {
+    child.connections.parent = null;
+  }
+
+  return child;
+};
+Connections.prototype.iterate = function (callback) {
+  for (var index = 0 ; index < this.list.length ; ++index) {
+    callback(this.list[index]);
+  }
+};
+
 function Splux (node, host) {
   this.node = node || null;
   this.host = host || {};
+  this.listener = null;
+  this.connections = new Connections(this);
 }
 Splux.prototype.use = function (node) {
-  return new Splux(node, this.host);
+  return node instanceof Splux ? node : new Splux(node, this.host);
 };
 
 Splux.start = function (callback, host) {
@@ -41,7 +82,11 @@ function spreadParams (fromObject, toObject) {
 Splux.prototype.dom = function () {
   var element, params, extra;
 
-  if (arguments[0] instanceof HTMLElement) {
+  if (arguments[0] instanceof Element) {
+    element = arguments[0];
+    params = arguments[1];
+    extra = arguments[2];
+  } else if (arguments[0] instanceof Splux) {
     element = arguments[0];
     params = arguments[1];
     extra = arguments[2];
@@ -55,20 +100,30 @@ Splux.prototype.dom = function () {
     extra = arguments[2];
   }
 
-  if (this.node) {
-    this.node.appendChild(element);
-  }
+  var elementSpl = this.use(element);
+
+  this.connections.add(elementSpl);
 
   if (params instanceof Function) {
-    return params.call(this.use(element), element, extra) || element;
+    return params.call(elementSpl, element, extra) || element;
   }
 
   if (params instanceof Object) {
-    spreadParams(params, element);
+    elementSpl.setParams(params);
   }
 
   return element;
 };
+
+Splux.prototype.remove = function (child) {
+  if (child) {
+    this.connections.remove(child);
+  } else {
+    this.connections.parent.remove(this);
+  }
+
+  return this;
+}
 
 Splux.prototype.setParams = function (params) {
   if (params instanceof Object) {
@@ -77,6 +132,16 @@ Splux.prototype.setParams = function (params) {
 
   return this;
 }
+
+Splux.prototype.broadcast = function (data) {
+  this.listener instanceof Function && this.listener(data);
+  this.connections.iterate(function (child) {
+    child.broadcast(data);
+  });
+};
+Splux.prototype.tuneIn = function (listener) {
+  this.listener = listener;
+};
 
 Splux.createComponent = function () {
   return function (tag, callback) {
