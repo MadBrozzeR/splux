@@ -8,7 +8,7 @@ declare module 'splux' {
     [key: `data-${string}`]: string;
   };
   type ParamsAsFunc<N extends Element, H, I = void, E = void> =
-    (this: Splux<N, H>, element: N, extra: E) => I;
+    (element: Splux<N, H>, extra: E) => I;
 
   type WithTag<K extends keyof Elements = 'div'> = K extends 'div' ? { tag?: K } : { tag: K };
 
@@ -38,32 +38,31 @@ declare module 'splux' {
     iterate(child: Splux<any, H>): void;
   }
 
-  class Splux<N extends Element, H = null> {
+  class Splux<N extends Element | null = null, H = null> {
     node: N;
     host: H;
     listener: ((data: any) => void) | null;
     connections: Connections<H, this, Splux<any, H>>;
 
     static start<H = null>(callback: (
-      this: Splux<HTMLBodyElement, H>,
-      body: HTMLBodyElement,
-      head: HTMLHeadElement,
+      body: Splux<HTMLBodyElement, H>,
+      head: Splux<HTMLHeadElement, H>,
     ) => void, host?: H): void;
 
     static createComponent<H = null>(): ComponentCreator<H>;
 
-    dom<K extends keyof Elements>(tag: K, params?: ParamsAsObj<Elements[K]>): Elements[K];
-    dom<N extends Element>(element: N, params?: ParamsAsObj<N>): N;
+    dom<K extends keyof Elements>(tag: K, params?: ParamsAsObj<Elements[K]>): Splux<Elements[K], H>;
+    dom<N extends Element>(element: N | Splux<N, H>, params?: ParamsAsObj<N>): Splux<N, H>;
 
-    dom<K extends keyof Elements, I>(tag: K, params: ParamsAsFunc<Elements[K], H, I, void>): Either<I, Elements[K]>;
-    dom<K extends keyof Elements, E, I>(tag: K, params: ParamsAsFunc<Elements[K], H, I, E>, extra: E): Either<I, Elements[K]>;
-    dom<N extends Element, I>(element: N | Splux<N, H>, params: ParamsAsFunc<N, H, I>): Either<I, N>;
-    dom<N extends Element, E, I>(element: N | Splux<N, H>, params: ParamsAsFunc<N, H, I, E>, extra: E): Either<I, N>;
+    dom<K extends keyof Elements, I>(tag: K, params: ParamsAsFunc<Elements[K], H, I, void>): Either<I, Splux<Elements[K], H>>;
+    dom<K extends keyof Elements, E, I>(tag: K, params: ParamsAsFunc<Elements[K], H, I, E>, extra: E): Either<I, Splux<Elements[K], H>>;
+    dom<N extends Element, I>(element: N | Splux<N, H>, params: ParamsAsFunc<N, H, I>): Either<I, Splux<N, H>>;
+    dom<N extends Element, E, I>(element: N | Splux<N, H>, params: ParamsAsFunc<N, H, I, E>, extra: E): Either<I, Splux<N, H>>;
 
-    dom<K extends keyof Elements = 'div', I = void>(params: Component<K, H, I>): Either<I, Elements[K]>;
-    dom<K extends keyof Elements = 'div', E = undefined, I = void>(params: Component<K, H, I, E>, extra: E): Either<I, Elements[K]>;
+    dom<K extends keyof Elements = 'div', I = void>(params: Component<K, H, I>): Either<I, Splux<Elements[K], H>>;
+    dom<K extends keyof Elements = 'div', E = undefined, I = void>(params: Component<K, H, I, E>, extra: E): Either<I, Splux<Elements[K], H>>;
 
-    use<N extends Element = null>(node: N | Splux<N, H>): Splux<N, H>;
+    use<N extends Element | null = null>(node: N | Splux<N, H>): Splux<N, H>;
 
     setParams(params: ParamsAsObj<N>): this;
 

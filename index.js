@@ -19,7 +19,7 @@ Connections.prototype.add = function (child) {
 Connections.prototype.remove = function (child) {
   var index = this.list.indexOf(child);
 
-  this.splus.node.removeChild(child.node);
+  this.splux.node.removeChild(child.node);
 
   if (index > -1) {
     this.list.splice(index, 1);
@@ -53,7 +53,7 @@ Splux.start = function (callback, host) {
     var body = document.getElementsByTagName('body')[0];
     var head = document.getElementsByTagName('head')[0];
 
-    callback.call(new Splux(body, host), body, head);
+    callback(new Splux(body, host), new Splux(head, host));
   };
 
   window.addEventListener('load', listener);
@@ -105,14 +105,14 @@ Splux.prototype.dom = function () {
   this.connections.add(elementSpl);
 
   if (params instanceof Function) {
-    return params.call(elementSpl, element, extra) || element;
+    return params(elementSpl, extra) || elementSpl;
   }
 
   if (params instanceof Object) {
     elementSpl.setParams(params);
   }
 
-  return element;
+  return elementSpl;
 };
 
 Splux.prototype.remove = function (child) {
