@@ -17,6 +17,9 @@ Connections.prototype.add = function (child) {
   return child;
 }
 Connections.prototype.remove = function (child) {
+  if (!this.list) {
+    return child;
+  }
   var index = this.list.indexOf(child);
 
   this.splux.node.removeChild(child.node);
@@ -32,6 +35,10 @@ Connections.prototype.remove = function (child) {
   return child;
 };
 Connections.prototype.iterate = function (callback) {
+  if (!this.list) {
+    return;
+  }
+
   for (var index = 0 ; index < this.list.length ; ++index) {
     callback(this.list[index]);
   }
