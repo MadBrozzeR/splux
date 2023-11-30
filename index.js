@@ -59,8 +59,10 @@ Splux.start = function (callback, host) {
     window.removeEventListener('load', listener);
     var body = document.getElementsByTagName('body')[0];
     var head = document.getElementsByTagName('head')[0];
+    var bodySpl = new Splux(body, host);
+    var headSpl = new Splux(head, host);
 
-    callback(new Splux(body, host), new Splux(head, host));
+    callback.call(bodySpl, bodySpl, headSpl);
   };
 
   window.addEventListener('load', listener);
@@ -112,7 +114,7 @@ Splux.prototype.dom = function () {
   this.connections.add(elementSpl);
 
   if (params instanceof Function) {
-    return params(elementSpl, extra) || elementSpl;
+    return params.call(elementSpl, elementSpl, extra) || elementSpl;
   }
 
   if (params instanceof Object) {
@@ -128,6 +130,13 @@ Splux.prototype.remove = function (child) {
   } else {
     this.connections.parent.remove(this);
   }
+
+  return this;
+}
+Splux.prototype.clear = function () {
+  this.connections.iterate(function (node) {
+    node.remove();
+  });
 
   return this;
 }

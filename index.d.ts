@@ -8,7 +8,7 @@ declare module 'splux' {
     [key: `data-${string}`]: string;
   };
   type ParamsAsFunc<N extends Element, H, I = void, E = void> =
-    (element: Splux<N, H>, extra: E) => I;
+    (this: Splux<N, H>, element: Splux<N, H>, extra: E) => I;
 
   type WithTag<K extends keyof Elements = 'div'> = K extends 'div' ? { tag?: K } : { tag: K };
 
@@ -45,6 +45,7 @@ declare module 'splux' {
     connections: Connections<H, this, Splux<any, H>>;
 
     static start<H = null>(callback: (
+      this: Splux<HTMLBodyElement, H>,
       body: Splux<HTMLBodyElement, H>,
       head: Splux<HTMLHeadElement, H>,
     ) => void, host?: H): void;
@@ -67,6 +68,7 @@ declare module 'splux' {
     setParams(params: ParamsAsObj<N>): this;
 
     remove(child?: Splux<any, H>): this;
+    clear(): this;
     broadcast(data: any): void;
     tuneIn(listener: (data: any) => void): void;
   }
