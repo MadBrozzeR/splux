@@ -34,6 +34,19 @@ Connections.prototype.remove = function (child) {
 
   return child;
 };
+Connections.prototype.clear = function () {
+  if (!this.list) {
+    return;
+  }
+
+  var item;
+
+  while (this.list[0]) {
+    item = this.list.pop();
+    this.splux.node.removeChild(item.node);
+    item.connections.parent = null;
+  }
+}
 Connections.prototype.iterate = function (callback) {
   if (!this.list) {
     return;
@@ -135,9 +148,7 @@ Splux.prototype.remove = function (child) {
   return this;
 }
 Splux.prototype.clear = function () {
-  this.connections.iterate(function (node) {
-    node.remove();
-  });
+  this.connections.clear();
 
   return this;
 }
