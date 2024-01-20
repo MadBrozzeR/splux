@@ -114,7 +114,8 @@ Splux.prototype.dom = function () {
   this.connections.add(elementSpl);
 
   if (params instanceof Function) {
-    return params.call(elementSpl, elementSpl, extra) || elementSpl;
+    var result = params.call(elementSpl, elementSpl, extra);
+    return result === undefined ? elementSpl : result;
   }
 
   if (params instanceof Object) {
@@ -141,7 +142,7 @@ Splux.prototype.clear = function () {
   return this;
 }
 
-Splux.prototype.setParams = function (params) {
+Splux.prototype.params = Splux.prototype.setParams = function (params) {
   if (params instanceof Object) {
     spreadParams(params, this.node);
   }

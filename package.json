@@ -1,7 +1,7 @@
 {
   "name": "splux",
-  "version": "1.5.2",
-  "description": "SPA DOM manipulation ",
+  "version": "1.6.0",
+  "description": "SPA DOM manipulation utility",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
