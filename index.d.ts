@@ -45,6 +45,8 @@ declare module 'splux' {
     listener: ((data: any) => void) | null;
     connections: Connections<H, this, Splux<any, H>>;
 
+    constructor(node?: N, host?: H);
+
     static start<H = null>(callback: (
       this: Splux<HTMLBodyElement, H>,
       body: Splux<HTMLBodyElement, H>,
