@@ -2,6 +2,7 @@ declare module 'splux' {
   type Either<A, B, E = undefined | void> = A extends E ? B : A;
   type Elements = HTMLElementTagNameMap;
   type TagName = keyof Elements;
+  type TagExtended<K extends TagName> = K | `${K}.${string}`;
 
   type ParamsAsObj<N extends Element> = {
     [key in keyof N]?: N[key];
@@ -25,7 +26,7 @@ declare module 'splux' {
     ParamsAsFunc<Elements[K], H, I, E> & WithTag<K>;
 
   interface ComponentCreator<H> {
-    <K extends TagName, I, E = void>(tag: K, callback: ParamsAsFunc<Elements[K], H, I, E>): Component<K, H, I, E>;
+    <K extends TagName, I, E = void>(tag: TagExtended<K>, callback: ParamsAsFunc<Elements[K], H, I, E>): Component<K, H, I, E>;
     <I, E = void>(callback: ParamsAsFunc<HTMLDivElement, H, I, E>): Component<'div', H, I, E>;
   }
 
@@ -53,11 +54,11 @@ declare module 'splux' {
       head: Splux<HTMLHeadElement, H>,
     ) => void, host?: H): void;
 
-    static createComponent<H = null>(): <K extends TagName, I, E = void>(tag: K, params: ParamsAsFunc<Elements[K], H, I, E>) => Component<K, H, I, E>;
+    static createComponent<H = null>(): <K extends TagName, I, E = void>(tag: TagExtended<K>, params: ParamsAsFunc<Elements[K], H, I, E>) => Component<K, H, I, E>;
 
-    dom<K extends TagName>(tag: K): Splux<Elements[K], H>;
-    dom<K extends TagName, I = void>(tag: K, params: ParamsAsFunc<Elements[K], H, I, void>): Either<I, Splux<Elements[K], H>>;
-    dom<K extends TagName, E = undefined, I = void>(tag: K, params: ParamsAsFunc<Elements[K], H, I, E>, extra: E): Either<I, Splux<Elements[K], H>>;
+    dom<K extends TagName>(tag: TagExtended<K>): Splux<Elements[K], H>;
+    dom<K extends TagName, I = void>(tag: TagExtended<K>, params: ParamsAsFunc<Elements[K], H, I, void>): Either<I, Splux<Elements[K], H>>;
+    dom<K extends TagName, E = undefined, I = void>(tag: TagExtended<K>, params: ParamsAsFunc<Elements[K], H, I, E>, extra: E): Either<I, Splux<Elements[K], H>>;
 
     dom<N extends Element>(element: N | Splux<N, H>): Splux<N, H>;
     dom<N extends Element, I = void>(element: N | Splux<N, H>, params: ParamsAsFunc<N, H, I>): Either<I, Splux<N, H>>;

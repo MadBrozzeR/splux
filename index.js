@@ -57,6 +57,23 @@ Connections.prototype.iterate = function (callback) {
   }
 };
 
+var DOT_RE = /\./g;
+
+function parseTagNameString (data) {
+  var dotPos = data.indexOf('.');
+
+  if (dotPos > -1) {
+    return {
+      tag: data.substring(0, dotPos),
+      params: { className: data.substring(dotPos + 1).split(DOT_RE).join(' '), },
+    };
+  }
+
+  return {
+    tag: data,
+  };
+}
+
 function Splux (node, host) {
   this.node = node || null;
   this.host = host || {};
@@ -102,7 +119,7 @@ function spreadParams (fromObject, toObject) {
 }
 
 Splux.prototype.dom = function () {
-  var element, params, extra;
+  var element, params, extra, parsed;
 
   if (arguments[0] instanceof Element) {
     element = arguments[0];
@@ -113,11 +130,13 @@ Splux.prototype.dom = function () {
     params = arguments[1];
     extra = arguments[2];
   } else if (arguments[0] instanceof Function) {
-    element = document.createElement(arguments[0].tag || 'div');
+    parsed = parseTagNameString(arguments[0].tag || 'div');
+    element = document.createElement(parsed.tag);
     params = arguments[0];
     extra = arguments[1];
   } else {
-    element = document.createElement(arguments[0]);
+    parsed = parseTagNameString(arguments[0]);
+    element = document.createElement(parsed.tag);
     params = arguments[1];
     extra = arguments[2];
   }
@@ -125,6 +144,10 @@ Splux.prototype.dom = function () {
   var elementSpl = this.use(element);
 
   this.connections.add(elementSpl);
+
+  if (parsed && parsed.params) {
+    elementSpl.setParams(parsed.params);
+  }
 
   if (params instanceof Function) {
     var result = params.call(elementSpl, elementSpl, extra);
