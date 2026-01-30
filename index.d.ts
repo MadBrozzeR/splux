@@ -12,7 +12,7 @@ declare module 'splux' {
   type ParamsAsFunc<N extends Element, H, I = void, E = void> =
     (this: Splux<N, H>, element: Splux<N, H>, extra: E) => I;
 
-  type WithTag<K extends TagName = 'div'> = K extends 'div' ? { tag?: K } : { tag: K };
+  type WithTag<K extends TagName = 'div'> = K extends 'div' ? { tag?: TagExtended<K> } : { tag: TagExtended<K> };
 
   /**
    * Splux Function Component
@@ -40,10 +40,15 @@ declare module 'splux' {
     iterate(child: Splux<any, H>): void;
   }
 
+  type Listeners<N extends Element | null, H> = {
+    cast: ((this: Splux<N, H>, data: any) => void) | null;
+    remove: ((this: Splux<any, H>) => void) | null;
+  };
+
   class Splux<N extends Element | null = null, H = null> {
     node: N;
     host: H;
-    listener: ((data: any) => void) | null;
+    listeners: Listeners<N, H>;
     connections: Connections<H, this, Splux<any, H>>;
 
     constructor(node?: N, host?: H);
@@ -76,6 +81,7 @@ declare module 'splux' {
     clear(): this;
     broadcast(data: any): void;
     tuneIn(listener: (data: any) => void): void;
+    on(listeners: Partial<Listeners<N, H>>): this;
   }
 
   export { Splux, Component, ComponentCreator, ParamsAsFunc, TagName };

@@ -21,7 +21,10 @@ Connections.prototype.remove = function (child) {
     return child;
   }
   var index = this.list.indexOf(child);
+  var listener = child.listeners.remove;
 
+  child.clear();
+  listener instanceof Function && listener.call(child);
   this.splux.node.removeChild(child.node);
 
   if (index > -1) {
@@ -40,9 +43,14 @@ Connections.prototype.clear = function () {
   }
 
   var item;
+  var listener;
 
   while (this.list[0]) {
     item = this.list.pop();
+    listener = item.listeners.remove;
+
+    item.clear();
+    listener instanceof Function && listener.call(item);
     this.splux.node.removeChild(item.node);
     item.connections.parent = null;
   }
@@ -77,7 +85,7 @@ function parseTagNameString (data) {
 function Splux (node, host) {
   this.node = node || null;
   this.host = host || {};
-  this.listener = null;
+  this.listeners = { cast: null, remove: null };
   this.connections = new Connections(this);
 }
 Splux.prototype.use = function (node) {
@@ -185,14 +193,22 @@ Splux.prototype.params = Splux.prototype.setParams = function (params) {
 }
 
 Splux.prototype.broadcast = function (data) {
-  this.listener instanceof Function && this.listener(data);
+  var listener = this.listeners.cast;
+  listener instanceof Function && listener.call(this, data);
   this.connections.iterate(function (child) {
     child.broadcast(data);
   });
 };
 Splux.prototype.tuneIn = function (listener) {
-  this.listener = listener;
+  this.listeners.cast = listener;
 };
+Splux.prototype.on = function (listeners) {
+  for (var key in listeners) {
+    this.listeners[key] = listeners[key];
+  }
+
+  return this;
+}
 
 Splux.createComponent = function () {
   return function (tag, callback) {
