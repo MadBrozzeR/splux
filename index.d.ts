@@ -25,6 +25,10 @@ declare module 'splux' {
   type Component<K extends TagName = 'div', H = null, I = void, E = void> =
     ParamsAsFunc<Elements[K], H, I, E> & WithTag<K>;
 
+  type ComponentSplux<C> = C extends Component<infer K, infer H, infer I, any>
+    ? (I extends void ? Splux<Elements[K], H> : I)
+    : never;
+
   interface ComponentCreator<H> {
     <K extends TagName, I, E = void>(tag: TagExtended<K>, callback: ParamsAsFunc<Elements[K], H, I, E>): Component<K, H, I, E>;
     <I, E = void>(callback: ParamsAsFunc<HTMLDivElement, H, I, E>): Component<'div', H, I, E>;
@@ -84,5 +88,5 @@ declare module 'splux' {
     on(listeners: Partial<Listeners<N, H>>): this;
   }
 
-  export { Splux, Component, ComponentCreator, ParamsAsFunc, TagName };
+  export { Splux, Component, ComponentCreator, ParamsAsFunc, TagName, ComponentSplux };
 }
