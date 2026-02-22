@@ -1,6 +1,6 @@
 {
   "name": "splux",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "SPA DOM manipulation utility",
   "main": "index.js",
   "scripts": {

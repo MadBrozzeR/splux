@@ -5,9 +5,9 @@ declare module 'splux' {
   type TagExtended<K extends TagName> = K | `${K}.${string}`;
 
   type ParamsAsObj<N extends Element> = {
-    [key in keyof N]?: N[key];
+    [key in keyof N]?: N[key] | undefined | null;
   } & {
-    [key: `data-${string}`]: string;
+    [key: `data-${string}`]: string | undefined | null;
   };
   type ParamsAsFunc<N extends Element, H, I = void, E = void> =
     (this: Splux<N, H>, element: Splux<N, H>, extra: E) => I;
